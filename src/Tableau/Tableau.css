@@ -1,0 +1,11 @@
+/*
+ * Tableau css File
+*/
+
+.Tableau {
+    /* propertys here */
+}
+
+.Tableau .pile {
+    display: inline-block;
+}
