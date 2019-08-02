@@ -1,16 +1,21 @@
 import React, { Component } from 'react';
-import './Card.css';
+import './Card.scss';
 
 class Card extends Component {
 
     render() {
+        let cardClasses = "Card";
+        if (this.props.card && this.props.card.moveable) {
+            cardClasses += " moveable";
+        }
+
         return (
-            <div className="Card" onClick={this.props.clickHandler}>
+            <div className={cardClasses} onClick={this.props.clickHandler}>
             {
-                this.props.card !== null ? 
-                <div>
-                    <h3>{this.props.card.n}</h3>
-                    <h3>{this.props.card.suit}</h3> 
+                (this.props.card !== null) ? 
+                <div style={{"textAlign": "center"}}>
+                    <div className="card-name">{this.props.card.n} </div>
+                    <div className="card-suit">{this.props.card.suit}</div> 
                 </div>
                 :
                 null
