@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import './Foundations.css';
 
 import Card from "../Card/Card";
+import { getTotalCardCount } from "../deck.js";
 
 class Foundations extends Component {
     constructor(props){
@@ -12,8 +13,7 @@ class Foundations extends Component {
     }
 
     clickHandler = (pile) => {
-
-        if (this.props.card.moveable) {
+        if (this.props.card && this.props.card.moveable) {
             let {piles} = this.state;
             
             if (piles[pile].length === 0 && this.props.card.val === 1) {
@@ -32,7 +32,7 @@ class Foundations extends Component {
 
     moveCard = (pile) => {
         let card = JSON.parse(JSON.stringify(this.props.card));
-        card.moveable = false;
+        card.moveable.status = false;
 
         this.setState(prev => {
             prev.piles[pile].push(card);
@@ -40,12 +40,18 @@ class Foundations extends Component {
                 piles: prev.piles
             };
         });
-        this.props.discard(); // remove card from discard cuz now in foundation
+
+        if (card.moveable.from === "discard") {
+            this.props.discard(); // remove card from discard cuz now in foundation
+        } else {
+            this.props.discardFromTableau(card.moveable.pile); // discard from tableau pile
+        }
     }
 
     render() {
         
-        if (this.state.piles.reduce((acc,p) => acc += p.length,0) === 12) { 
+        // check if game over
+        if (this.state.piles.reduce((acc,p) => acc += p.length,0) === getTotalCardCount()) { 
             console.log("You win!"); 
         }
 
@@ -54,11 +60,11 @@ class Foundations extends Component {
             if (p.length > 0) {
                 top = p[p.length-1];
             }
-            return <div key={i} className="pile" onClick={() => this.clickHandler(i)}><Card card={top}/></div>
+            return <div key={i} onClick={() => this.clickHandler(i)}><Card card={top}/></div>
         });
 
         return (
-          <div className="Tableau">
+          <div className="row justify-content-end">
               { piles }
           </div>
         );

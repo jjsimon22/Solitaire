@@ -2,9 +2,9 @@
 export const createDeck = () => {
     let cardValues = [{ 'n':'A', 'val':1},
         { 'n':'2', 'val':2},
-        { 'n':'3', 'val':3} /*,
-        { 'n':'4', 'val':4},
-        { 'n':'5', 'val':5},
+        { 'n':'3', 'val':3},
+        { 'n':'4', 'val':4}/*,
+        { 'n':'5', 'val':5}/*,
         { 'n':'6', 'val':6},
         { 'n':'7', 'val':7},
         { 'n':'8', 'val':8},
@@ -48,4 +48,8 @@ export const shuffle = (arr) => {
         arr[y] = t;
     }
     return arr.slice();
+}
+
+export const getTotalCardCount = () => {
+    return createDeck().length;
 }

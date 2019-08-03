@@ -7,16 +7,31 @@ import Foundations from "./Foundations/Foundations.js";
 
 import { createDeck, shuffle } from "./deck.js";
 
-
 class App extends Component {
     constructor(props) {
         super(props);
 
-        //let deck = createDeck();
+        let deck = shuffle(createDeck());
+
+const tableauPileCount = 3;
+        
+        let tableauState = [];
+        for (let i=0; i<tableauPileCount; i++) {
+            tableauState.push([]);
+        }
+
+        for (let i=0; i<tableauPileCount; i++) {
+            //for (let j=i; j<tableauPileCount; j++) {
+                //piles[j].push(initCards.pop());
+            //}
+            tableauState[i].push(deck.pop());
+        }
 
         this.state = {
-            deck: shuffle(createDeck()), //createDeck()
-            discard: []
+            deck: deck,
+            discard: [],
+            tableau: tableauState,
+            currCard: null
         };
     }
 
@@ -33,11 +48,15 @@ class App extends Component {
             this.setState(prev => {
                 let c = prev.deck.pop();
                 if (prev.discard.length > 1) {
-                    prev.discard[prev.discard.length-1].moveable = false; 
+                    prev.discard[prev.discard.length-1].moveable = {
+                        from: null,
+                        status: false
+                    }; 
                 }
                 prev.discard.push(c);
                 return {
-                    discard: prev.discard
+                    discard: prev.discard,
+                    currCard: c
                 }
             });
         }
@@ -48,17 +67,43 @@ class App extends Component {
         if (this.state.discard.length > 0) {
             let discard = this.state.discard.slice();
             let top = discard[discard.length-1];
-            top.moveable = top.moveable === undefined  ? true : !top.moveable;
+            let moveStatus = top.moveable === undefined ? true : !top.moveable.status;
+            top.moveable = {
+                from: "discard",
+                status: moveStatus
+            }
             this.setState({
-                "discard": discard
+                "discard": discard,
+                currCard: top
             });
         }
     }
 
-    discardHandler = () => {
+    updateCurrCard = (card) => {
+        this.setState({currCard: card});
+    }
+
+    updateTableau = (t) => {
+        this.setState({tableau: t})
+    }
+
+    discardHandler = () => { // discard from discard pile
         this.setState(state => {
             state.discard.pop();
-            return { discard: state.discard }
+            return { 
+                discard: state.discard,
+                currCard: null
+            }
+        });
+    }
+
+    discardFromTableau = (pile) => {
+        this.setState(s => {
+            s.tableau[pile].pop();
+            return {
+                currCard: null,
+                tableau: s.tableau
+            };
         });
     }
 
@@ -69,15 +114,35 @@ class App extends Component {
                         this.state.discard[this.state.discard.length-1];
 
         return (
-        <div className="App">
-            <div>
-                <Card card={drawCard} clickHandler={this.drawCard}/>
-                <Card card={disCard} clickHandler={this.moveCard}/>
+        <div className="App container">
+            <div className="row">
+                <div className="col-md-4">
+                    <div className="row">
+                        <div className="col">
+                            <Card card={drawCard} clickHandler={this.drawCard}/>
+                        </div>
+                        <div className="col">
+                            <Card className="col-md-6" card={disCard} clickHandler={this.moveCard}/>
+                        </div>
+                    </div>
+                </div>
+                <div className="col-md-8">
+                    <Foundations 
+                        card={this.state.currCard} 
+                        discard={this.discardHandler}
+                        discardFromTableau={this.discardFromTableau}
+                    />
+                </div>
             </div>
-            <Foundations card={disCard} discard={this.discardHandler}/>
-            {/*<Tableau card={disCard} discard={this.discardHandler}/>
-            */}
-          
+            <div>
+                <Tableau 
+                    tableau={this.state.tableau} 
+                    card={this.state.currCard}
+                    discard={this.discardHandler}
+                    updateCurrCard={this.updateCurrCard}
+                    updateTableau={this.updateTableau}
+                />
+            </div>
         </div>
         );
     }
