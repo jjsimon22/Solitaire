@@ -4,17 +4,15 @@
 
 .Card {
     /* propertys here */
-    width: 120px;
-    height: 130px;
+    width: 60px;
+    height: 90px;
     border: 2px solid black;
     border-radius: 5px;
     background: lightgrey;
 
-    .card-name {
-        font-size: 48px;
-    }
-    .card-suit {
-        font-size: 24px;
+    .cardContent {
+        text-align: center;
+        font-size: 70px;
     }
     .black {
         color: black

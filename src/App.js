@@ -13,24 +13,30 @@ class App extends Component {
 
         let deck = shuffle(createDeck());
 
-const tableauPileCount = 3;
-        
+        const pileCount = 7;
         let tableauState = [];
-        for (let i=0; i<tableauPileCount; i++) {
+        for (let i=0; i<pileCount; i++) {
             tableauState.push([]);
         }
 
-        for (let i=0; i<tableauPileCount; i++) {
-            //for (let j=i; j<tableauPileCount; j++) {
-                //piles[j].push(initCards.pop());
-            //}
-            tableauState[i].push(deck.pop());
+        for (let i=pileCount-1; i>=0; i--) {
+            for (let j=0; j<i; j++) {
+                tableauState[i].push(deck.pop());
+            }
+
+            // default last one to face up
+            let c = deck.pop();
+            c.faceUp = 1;
+            //console.log(c, c.faceUp);
+            tableauState[i].push(c);
         }
 
+console.log(tableauState);
         this.state = {
             deck: deck,
             discard: [],
             tableau: tableauState,
+            clearTableauAction: false,
             currCard: null
         };
     }
@@ -47,6 +53,7 @@ const tableauPileCount = 3;
         } else {
             this.setState(prev => {
                 let c = prev.deck.pop();
+                c.faceUp = true;
                 if (prev.discard.length > 1) {
                     prev.discard[prev.discard.length-1].moveable = {
                         from: null,
@@ -68,14 +75,16 @@ const tableauPileCount = 3;
             let discard = this.state.discard.slice();
             let top = discard[discard.length-1];
             let moveStatus = top.moveable === undefined ? true : !top.moveable.status;
-            top.moveable = {
-                from: "discard",
-                status: moveStatus
+            if (moveStatus) {
+                top.moveable = {
+                    from: "discard",
+                    status: moveStatus
+                }
+                this.setState({
+                    "discard": discard,
+                    currCard: top
+                });
             }
-            this.setState({
-                "discard": discard,
-                currCard: top
-            });
         }
     }
 
@@ -84,7 +93,7 @@ const tableauPileCount = 3;
     }
 
     updateTableau = (t) => {
-        this.setState({tableau: t})
+        this.setState({tableau: t, clearTableauAction: false})
     }
 
     discardHandler = () => { // discard from discard pile
@@ -102,7 +111,8 @@ const tableauPileCount = 3;
             s.tableau[pile].pop();
             return {
                 currCard: null,
-                tableau: s.tableau
+                tableau: s.tableau,
+                clearTableauAction: true
             };
         });
     }
@@ -137,10 +147,11 @@ const tableauPileCount = 3;
             <div>
                 <Tableau 
                     tableau={this.state.tableau} 
-                    card={this.state.currCard}
+                    selectedCard={this.state.currCard}
                     discard={this.discardHandler}
                     updateCurrCard={this.updateCurrCard}
                     updateTableau={this.updateTableau}
+                    clearTableauAction={this.state.clearTableauAction}
                 />
             </div>
         </div>
